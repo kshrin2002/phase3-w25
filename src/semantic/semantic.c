@@ -43,18 +43,6 @@ void exit_scope(SymbolTable* table) {
     table->current_scope--;
 }
 
-// Look up a symbol in any accessible scope
-Symbol* lookup_symbol(SymbolTable* table, const char* name) {
-    Symbol* current = table->head;
-    while (current) {
-        if (strcmp(current->name, name) == 0) {
-            return current;
-        }
-        current = current->next;
-    }
-    return NULL; // Symbol not found
-}
-
 // Removing symbols from the current scope
 void remove_symbols_in_current_scope(SymbolTable* table) {
     Symbol* current = table->head;
@@ -85,6 +73,83 @@ void free_symbol_table(SymbolTable* table) {
         free(temp);
     }
     free(table);
+}
+
+// Semantic Error Reporting
+void semantic_error(SemanticErrorType error, const char* name, int line) {
+    printf("Semantic Error at line %d: ", line);
+    switch (error) {
+        case SEM_ERROR_UNDECLARED_VARIABLE:
+            printf("Undeclared variable '%s'\n", name);
+            break;
+        case SEM_ERROR_REDECLARED_VARIABLE:
+            printf("Variable '%s' already declared in this scope\n", name);
+            break;
+        case SEM_ERROR_TYPE_MISMATCH:
+            printf("Type mismatch involving '%s'\n", name);
+            break;
+        case SEM_ERROR_UNINITIALIZED_VARIABLE:
+            printf("Variable '%s' may be used uninitialized\n", name);
+            break;
+        case SEM_ERROR_INVALID_OPERATION:
+            printf("Invalid operation involving '%s'\n", name);
+            break;
+        case SEM_ERROR_INVALID_ARGUMENT:
+            printf("Invalid argument for function '%s'\n", name);
+            break;
+        case SEM_ERROR_FUNCTION_CALL_NO_ARGUMENTS:
+            printf("Function '%s' call requires one argument, but none provided\n", name);
+            break;
+        case SEM_ERROR_FUNCTION_CALL_TOO_MANY_ARGUMENTS:
+            printf("Function '%s' call has too many arguments\n", name);
+            break;
+        default:
+            printf("Unknown semantic error with '%s'\n", name);
+    }
+}
+
+// Expression Checking
+int check_expression(ASTNode* node, SymbolTable* table) {
+    return 1;
+}
+
+// Special Feature: Function Call Validation
+int check_function_call(ASTNode* node, SymbolTable* table) {
+    // Ensure node is function call
+    if (node->type != AST_FUNCTIONCALL) {
+        return 1;
+    }
+
+    // Validate function being called is "factorial"
+    if (strcmp(node->token.lexeme, "factorial") != 0) {
+        semantic_error(SEM_ERROR_INVALID_OPERATION, node->token.lexeme, node->token.line);
+        return 0;
+    }
+
+    // Check exactly one argument provided
+    if (node->args == NULL) {
+        semantic_error(SEM_ERROR_FUNCTION_CALL_NO_ARGUMENTS, "factorial", node->token.line);
+        return 0;
+    }
+    // if more than one argument is passed, "right" will not be NULL.
+    if (node->args->right != NULL) {
+        semantic_error(SEM_ERROR_FUNCTION_CALL_TOO_MANY_ARGUMENTS, "factorial", node->token.line);
+        return 0;
+    }
+
+    // Validate argument expression
+    int valid = check_expression(node->args, table);
+
+    // If argument is a number literal, check that it's non-negative
+    if (node->args->type == AST_NUMBER) {
+        int value = atoi(node->args->token.lexeme);
+        if (value < 0) {
+            semantic_error(SEM_ERROR_INVALID_ARGUMENT, "factorial", node->token.line);
+            valid = 0;
+        }
+    }
+
+    return valid;
 }
 
 // Main function for testing the symbol table

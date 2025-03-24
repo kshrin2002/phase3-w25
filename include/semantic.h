@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "tokens.h"
+#include "parser.h"
 
 // Basic symbol structure
 typedef struct Symbol {
@@ -49,3 +51,24 @@ void remove_symbols_in_current_scope(SymbolTable* table);
 // Free the symbol table memory
 // Releases all allocated memory when the symbol table is no longer needed
 void free_symbol_table(SymbolTable* table);
+
+// New semantic analysis definitions
+
+typedef enum {
+    SEM_ERROR_NONE,
+    SEM_ERROR_UNDECLARED_VARIABLE,
+    SEM_ERROR_REDECLARED_VARIABLE,
+    SEM_ERROR_TYPE_MISMATCH,
+    SEM_ERROR_UNINITIALIZED_VARIABLE,
+    SEM_ERROR_INVALID_OPERATION,
+    SEM_ERROR_INVALID_ARGUMENT,             // For invalid argument values
+    SEM_ERROR_FUNCTION_CALL_NO_ARGUMENTS,     // For missing arguments in function call
+    SEM_ERROR_FUNCTION_CALL_TOO_MANY_ARGUMENTS, // For too many arguments in function call
+    SEM_ERROR_SEMANTIC_ERROR
+} SemanticErrorType;
+
+// Report semantic errors
+void semantic_error(SemanticErrorType error, const char* name, int line);
+
+// Special feature validation: validate function calls (e.g. factorial)
+int check_function_call(ASTNode* node, SymbolTable* table);
