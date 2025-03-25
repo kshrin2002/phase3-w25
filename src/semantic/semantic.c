@@ -3,14 +3,17 @@
 // Initializing new symbol table
 SymbolTable* init_symbol_table() {
     SymbolTable* table = (SymbolTable*)malloc(sizeof(SymbolTable));
-    table->head = NULL;
-    table->current_scope = 0;
+    if (table){
+        table->head = NULL;
+        table->current_scope = 0;
+    }
     return table;
 }
 
 // Adding a symbol to the table
 void add_symbol(SymbolTable* table, const char* name, int type, int line) {
     Symbol* symbol = (Symbol*)malloc(sizeof(Symbol));
+    if (symbol) {
     strcpy(symbol->name, name);
     symbol->type = type;
     symbol->scope_level = table->current_scope;
@@ -18,12 +21,13 @@ void add_symbol(SymbolTable* table, const char* name, int type, int line) {
     symbol->is_initialized = 0;
     symbol->next = table->head;
     table->head = symbol;
+    }   
 }
 
 // Looking up a symbol in the table
 Symbol* lookup_symbol(SymbolTable* table, const char* name) {
     Symbol* current = table->head;
-    while (current != NULL) {
+    while (current) {
         if (strcmp(current->name, name) == 0) {
             return current;
         }
