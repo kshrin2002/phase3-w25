@@ -112,10 +112,10 @@ void semantic_error(SemanticErrorType error, const char* name, int line) {
     }
 }
 
-// Expression Checking
-int check_expression(ASTNode* node, SymbolTable* table) {
-    return 1;
-}
+// Expression Checking - commented out as this was a placeholder, it has now been implemented below.
+// int check_expression(ASTNode* node, SymbolTable* table) {
+//    return 1;
+// }
 
 // Special Feature: Function Call Validation
 int check_function_call(ASTNode* node, SymbolTable* table) {
@@ -182,3 +182,179 @@ int main() {
     return 0;
 }
 
+// check variable declaration
+int check_declaration(ASTNode* node, SymbolTable* table) {
+    if (node == NULL || node->type != AST_VARDECL) { // check if node is a variable declaration
+        return 1;
+    }
+
+    const char* variable_name = node->token.lexeme; // get the variable name
+    
+    // check if the variable has already been declared
+    Symbol* current = table->head;
+    while (current != NULL) {
+        if (strcmp(current->name, variable_name) == 0 && current->scope_level == table->current_scope) { // Here is the check for the existence of the variable
+            semantic_error(SEM_ERROR_REDECLARED_VARIABLE, variable_name, node->token.line);
+            return -1; // return -1 if the variable has already been declared
+        }
+        current = current->next;
+    }
+
+    // add the variable to the symbol table
+    add_symbol(table, variable_name, TYPE_INT, node->token.line);
+    return TYPE_INT; // return the data type of the variable
+}
+
+// check variable assignment
+int check_assignment(ASTNode* node, SymbolTable* table) {
+    if (node == NULL || node->type != AST_ASSIGN || node->left == NULL || node->right == NULL) { 
+        return -1;
+    }
+
+    const char* variable_name = node->left->token.lexeme; // get the variable name
+
+    // look up the variable in the symbol table
+    Symbol* symbol = lookup_symbol(table, variable_name);
+    if (!symbol) {
+        semantic_error(SEM_ERROR_UNDECLARED_VARIABLE, variable_name, node->left->token.line);
+        return -1;
+    }
+
+    // check if the type of the right hand side matches the type of the variable
+    int expression_type = check_expression(node->right, table);
+    if (expression_type == -1) {
+        return -1;
+    }
+    
+    // check the variable's type and the expression type are compatible
+    if (symbol->type != expression_type) {
+        semantic_error(SEM_ERROR_TYPE_MISMATCH, variable_name, node->left->token.line);
+        return -1;
+    }
+
+    // mark the variable as initialized
+    symbol->is_initialized = 1;
+    return expression_type;
+}
+
+// check the expression for type correctness
+int check_expression(ASTNode* node, SymbolTable* table) {
+    if (node == NULL) {
+        return -1;
+    }
+
+    switch (node->type) {
+        case AST_NUMBER: // numberl iteral is type int
+            return TYPE_INT;
+
+        case AST_IDENTIFIER:{
+            Symbol* symbol = lookup_symbol(table, node->token.lexeme);
+            if (!symbol) {
+                semantic_error(SEM_ERROR_UNDECLARED_VARIABLE, node->token.lexeme, node->token.line);
+                return -1;
+            }
+            // check if the variable has been initialized, warn.
+            if (!symbol->is_initialized) {
+                semantic_error(SEM_ERROR_UNINITIALIZED_VARIABLE, node->token.lexeme, node->token.line);
+                return symbol->type;
+            }
+            return symbol->type;
+        }
+        case AST_BINOP: {
+            int left_type = check_expression(node->left, table);
+            int right_type = check_expression(node->right, table);
+            if (left_type == -1 || right_type == -1) {
+                return -1;
+            }
+            // check if the types of the left and right expressions are the same
+            if (left_type != right_type) {
+                semantic_error(SEM_ERROR_TYPE_MISMATCH, node->token.lexeme, node->token.line);
+                return -1;
+            }
+            return left_type;
+        }
+        case AST_FUNCTIONCALL: {
+            // validate function calls, like factorial and such...
+            int valid = check_function_call(node, table);
+            if (!valid) {
+                return -1;
+            }
+            // assume valid function call returns an integer
+            return TYPE_INT;
+        }
+
+        default: // error for unsupported exression types
+            return -1;
+        }
+}
+// check the semantic correctness of the AST... Recursively check statement nodes
+int check_statement(ASTNode* node, SymbolTable* table) {
+    if (node == NULL) {
+        return 1;
+    }
+
+    int valid = 1;
+
+    switch (node->type) {
+        case AST_VARDECL:
+            valid &= (check_declaration(node, table) != -1);
+            break;
+
+        case AST_ASSIGN:
+            valid &= (check_assignment(node, table) != -1);
+            break;
+    
+        case AST_PRINT:
+            valid &= (check_expression(node->left, table) != -1);
+            break;
+    
+        case AST_BLOCK:
+            enter_scope(table);
+            valid &= check_statement(node->left, table);
+            exit_scope(table);
+            break;
+    
+        case AST_IF:
+            valid &= (check_expression(node->left, table) != -1);
+            enter_scope(table);
+            valid &= check_statement(node->right, table);
+            exit_scope(table);
+            break;
+    
+        case AST_WHILE:
+            valid &= (check_expression(node->left, table) != -1);
+            enter_scope(table);
+            valid &= check_statement(node->right, table);
+            exit_scope(table);
+            break;
+    
+        case AST_REPEAT: //repeat untill loop. left child is the body, right is the condition
+            enter_scope(table);
+            valid &= check_statement(node->left, table);
+            exit_scope(table);
+            valid &= (check_expression(node->right, table) != -1);
+            break;
+    
+        case AST_FUNCTIONDECL:
+            valid &= (check_function_call(node, table) != -1);
+            break;
+    
+        default:
+            valid &= (check_statement(node->left, table) != -1);
+            break;
+    }
+    
+    // Recursively check the right child (using node->right)
+    valid &= check_statement(node->right, table);
+    
+    return valid;
+}
+
+
+// semantic analysis function
+int analyze_semantics(ASTNode* ast) {
+    SymbolTable* table = init_symbol_table();
+    int result = check_statement(ast, table);
+    free_symbol_table(table);
+    return result;
+}

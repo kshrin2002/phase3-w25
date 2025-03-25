@@ -5,6 +5,8 @@
 #include "tokens.h"
 #include "parser.h"
 
+#define TYPE_INT 0
+
 // Basic symbol structure
 typedef struct Symbol {
     char name[100];          // Variable name
@@ -72,3 +74,9 @@ void semantic_error(SemanticErrorType error, const char* name, int line);
 
 // Special feature validation: validate function calls (e.g. factorial)
 int check_function_call(ASTNode* node, SymbolTable* table);
+
+
+// Semantic checking functions for tye checking and variable checking 
+int check_declaration(ASTNode* node, SymbolTable* table);
+int check_assignment(ASTNode* node, SymbolTable* table);
+int check_expression(ASTNode* node, SymbolTable* table);
