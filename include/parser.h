@@ -19,6 +19,7 @@ typedef enum {
     AST_REPEAT,         // Repeat until loop
     AST_BLOCK,          // Block statements
     AST_FUNCTIONCALL,   // Function call for factorial(x)
+    AST_FUNCTIONDECL,
     // End of added
     // added new node types as used in to do 6 - dharsan
     AST_BINOP,
