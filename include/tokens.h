@@ -14,15 +14,26 @@ typedef enum {
     TOKEN_EOF,
     TOKEN_NUMBER,     // e.g., "123", "456"
     TOKEN_OPERATOR,   // e.g., "+", "-"
-    // added by Lucy
     TOKEN_IDENTIFIER, // variable names like "x", "varName"
     TOKEN_ASSIGN,     // assignment operator "="
     TOKEN_KEYWORD,    // keywords like "if", "repeat"
     TOKEN_STRING,     // string literals like "hello", "world"
     TOKEN_DELIMITER,  // delimiters like ",", ";", "{", "}", "(", ")"
     TOKEN_COMMENT,    // comments like "// comment", "/* block comment */"
-    // end of added
-    TOKEN_ERROR
+    TOKEN_ERROR,
+    TOKEN_EQUALS,      // =
+    TOKEN_SEMICOLON,   // ;
+    TOKEN_LPAREN,      // (
+    TOKEN_RPAREN,      // )
+    TOKEN_LBRACE,      // {
+    TOKEN_RBRACE,      // }
+    TOKEN_IF,          // if keyword
+    TOKEN_INT,         // int keyword
+    TOKEN_PRINT,       // print keyword
+    TOKEN_WHILE,       // while keyword
+    TOKEN_REPEAT,      // repeat keyword
+    TOKEN_UNTIL        // until keyword
+    
 } TokenType;
 
 /* Error types for lexical analysis
@@ -53,6 +64,7 @@ typedef struct {
     TokenType type;
     char lexeme[100];   // Actual text of the token
     int line;           // Line number in source file
+    int column;
     ErrorType error;    // Error type if any
 } Token;
 
