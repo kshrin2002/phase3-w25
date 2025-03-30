@@ -149,8 +149,6 @@ Token get_next_token(const char *input, int *pos) {
         return get_next_token(input, pos); // grab next token after the comment
     }
     
-
-
     // Handle numbers
     if (isdigit(c)) {
         int i = 0;
@@ -186,6 +184,7 @@ Token get_next_token(const char *input, int *pos) {
             } else {
                 token.type = TOKEN_IDENTIFIER;
             }
+        // printf("%s\n", token.lexeme);    
         return token;
     }
 
@@ -264,7 +263,6 @@ Token get_next_token(const char *input, int *pos) {
         return token;
     }
 
-
     // Handle operators 
     if (c == '+' || c == '-' || c == '*' || c=='/' || c == '%') { // *, /, % added by Lucy
         // if (last_token_type == 'o') {
@@ -307,12 +305,24 @@ Token get_next_token(const char *input, int *pos) {
     // TODO: Add delimiter handling here
     // Added by Lucy
     // Handle delimiters
-    if (strchr(";(),{}", c)) {
-        token.type = TOKEN_DELIMITER;
+    if (c == ';' || c == '(' || c == ')' || c == '{' || c == '}') {
+        if (c == ';') {
+            token.type = TOKEN_SEMICOLON;  // for semicolon
+        } else if (c == '(') {
+            token.type = TOKEN_LPAREN;  // for left parenthesis
+        } else if (c == ')') {
+            token.type = TOKEN_RPAREN;  // for right parenthesis
+        } else if (c == '{') {
+            token.type = TOKEN_LBRACE;  // for left brace
+        } else if (c == '}') {
+            token.type = TOKEN_RBRACE;  // for right brace
+        }
+        
         token.lexeme[0] = c;
-        token.lexeme[1] = '\0';
-        (*pos)++;
-        return token;
+        token.lexeme[1] = '\0';  // Null-terminate the lexeme string
+        (*pos)++;  // Move the position forward regardless of the character
+        
+        return token;  // Return the token
     }
 
 
