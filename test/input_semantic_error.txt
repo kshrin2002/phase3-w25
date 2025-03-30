@@ -1,1 +1,21 @@
+// Undeclared variable
+x = 5; // Error: x not declared
 
+// Redeclaration in same scope
+int x;
+int x; // Error: x redeclared
+
+// Uninitialized variable
+int x;
+int y;
+y = x + 5; // Warning: x used before initialization
+
+// Invalid operation
+int x;
+x = 5 / 0; // Error: division by zero
+
+// Scope errors
+if (x > 0) {
+    int y;
+}
+y = 5; // Error: y not accessible in this scope

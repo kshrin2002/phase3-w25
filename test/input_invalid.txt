@@ -1,1 +1,15 @@
-
+x @ y;
+123abc;
+5++10;
+"Hello\xWorld";
+"Hello test
+int x = 10
+5 + ( 10 *;
+print 10;
+loop x = 10;
+x = 5 + ;
+int 123abc() { }
+{ int x = 10;
+x >=< 5;
+int x = 5; print x;
+{ int x = 5;;}
