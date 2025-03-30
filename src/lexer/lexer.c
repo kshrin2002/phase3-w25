@@ -285,7 +285,7 @@ Token get_next_token(const char *input, int *pos) {
     // Added by Lucy
     // Handle assignment and comparison operators
     if (c == '=') {
-        token.type = TOKEN_ASSIGN;
+        token.type = TOKEN_EQUALS;
         token.lexeme[0] = c;
         token.lexeme[1] = '\0';
         (*pos)++;

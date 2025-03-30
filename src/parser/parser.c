@@ -485,24 +485,24 @@ void free_ast(ASTNode *node) {
     free(node);
 }
 
-// Main function for testing
-int main() {
-    // Test with both valid and invalid inputs
-    const char *input = "int x;\n" // Valid declaration
-            "x = 42;\n"; // Valid assignment;
-    // // TODO 8: Add more test cases and read from a file:
-    // const char *invalid_input = "int x;\n"
-    //                             "x = 42;\n"
-    //                             "int ;";
+// // Main function for testing
+// int main() {
+//     // Test with both valid and invalid inputs
+//     const char *input = "int x;\n" // Valid declaration
+//             "x = 42;\n"; // Valid assignment;
+//     // // TODO 8: Add more test cases and read from a file:
+//     // const char *invalid_input = "int x;\n"
+//     //                             "x = 42;\n"
+//     //                             "int ;";
 
 
-    printf("Parsing input:\n%s\n", input);
-    parser_init(input);
-    ASTNode *ast;
-    ast = parse();
-    printf("\nAbstract Syntax Tree:\n");
-    print_ast(ast, 0);
-    free_ast(ast);
+//     printf("Parsing input:\n%s\n", input);
+//     parser_init(input);
+//     ASTNode *ast;
+//     ast = parse();
+//     printf("\nAbstract Syntax Tree:\n");
+//     print_ast(ast, 0);
+//     free_ast(ast);
 
-    return 0;
-}
+//     return 0;
+// }

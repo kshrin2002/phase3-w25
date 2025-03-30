@@ -403,7 +403,7 @@ int check_statement(ASTNode* node, SymbolTable* table) {
             break;
         }
     
-        case AST_FUNCTIONDECL:
+        case AST_FUNCTIONCALL:
             // validate function declaration
             valid &= (check_function_call(node, table) != -1);
             break;
