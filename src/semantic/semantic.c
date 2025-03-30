@@ -426,28 +426,64 @@ int analyze_semantics(ASTNode* ast) {
     return result;
 }
 
-// Main function for testing the symbol table
+// // Main function for testing the symbol table
+// int main() {
+//     SymbolTable* table = init_symbol_table();
+//     add_symbol(table, "x", 0, 1);
+//     add_symbol(table, "y", 1, 2);
+//     add_symbol(table, "z", 2, 3);
+//     Symbol* sym = lookup_symbol(table, "y");
+//     if (sym != NULL) {
+//         printf("Symbol found: %s\n", sym->name);
+//     } else {
+//         printf("Symbol not found\n");
+//     }
+//     enter_scope(table);
+//     add_symbol(table, "a", 3, 4);
+//     add_symbol(table, "b", 4, 5);
+//     exit_scope(table);
+//     sym = lookup_symbol(table, "b");
+//     if (sym != NULL) {
+//         printf("Symbol found: %s\n", sym->name);
+//     } else {
+//         printf("Symbol not found\n");
+//     }
+//     free_symbol_table(table);
+//     return 0;
+// }
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <stdio.h>
+
 int main() {
-    SymbolTable* table = init_symbol_table();
-    add_symbol(table, "x", 0, 1);
-    add_symbol(table, "y", 1, 2);
-    add_symbol(table, "z", 2, 3);
-    Symbol* sym = lookup_symbol(table, "y");
-    if (sym != NULL) {
-        printf("Symbol found: %s\n", sym->name);
-    } else {
-        printf("Symbol not found\n");
+    char buffer[1024]; // Buffer to store file contents
+    FILE *file = fopen("input_semantic_error.txt", "r");
+
+    // Reading the file 
+    if (fscanf(file, "%1023s", buffer) != EOF) {
+        printf("Analyzing input:\n%s\n\n", buffer);
+
+        // Lexical analysis and parsing
+        parser_init(buffer);
+        ASTNode* ast = parse();
+    
+        printf("AST created. Performing semantic analysis...\n\n");
+    
+        // Semantic analysis
+        int result = analyze_semantics(ast);
+    
+        if (result) {
+            printf("Semantic analysis successful. No errors found.\n");
+        } else {
+            printf("Semantic analysis failed. Errors detected.\n");
+        }
+    
+       
+        free_ast(ast);
     }
-    enter_scope(table);
-    add_symbol(table, "a", 3, 4);
-    add_symbol(table, "b", 4, 5);
-    exit_scope(table);
-    sym = lookup_symbol(table, "b");
-    if (sym != NULL) {
-        printf("Symbol found: %s\n", sym->name);
-    } else {
-        printf("Symbol not found\n");
-    }
-    free_symbol_table(table);
+
+    fclose(file);
     return 0;
 }
