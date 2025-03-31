@@ -1,4 +1,11 @@
 #include "../../include/semantic.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../../include/parser.h"
+#include "../../include/lexer.h"
+#include "../../include/tokens.h"
+
 
 // Declare functions to resolve circular dependencies
 int check_statement(ASTNode* node, SymbolTable* table);
@@ -452,38 +459,33 @@ int analyze_semantics(ASTNode* ast) {
 //     return 0;
 // }
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <stdio.h>
 
 int main() {
-    char buffer[1024]; // Buffer to store file contents
-    FILE *file = fopen("input_semantic_error.txt", "r");
-
-    // Reading the file 
-    if (fscanf(file, "%1023s", buffer) != EOF) {
-        printf("Analyzing input:\n%s\n\n", buffer);
-
-        // Lexical analysis and parsing
-        parser_init(buffer);
-        ASTNode* ast = parse();
+    const char* input = "int x;\n"
+                        "x = 42;\n";
+    printf("Analyzing input:\n%s\n\n", input);
     
-        printf("AST created. Performing semantic analysis...\n\n");
+    // Lexical analysis and parsing
+    parser_init(input);
+    ASTNode* ast = parse();
     
-        // Semantic analysis
-        int result = analyze_semantics(ast);
+    printf("AST created. Performing semantic analysis...\n\n");
     
-        if (result) {
-            printf("Semantic analysis successful. No errors found.\n");
-        } else {
-            printf("Semantic analysis failed. Errors detected.\n");
-        }
+    // Semantic analysis
+    int result = analyze_semantics(ast);
     
-       
-        free_ast(ast);
+    if (result) {
+        printf("Semantic analysis successful. No errors found.\n");
+    } else {
+        printf("Semantic analysis failed. Errors detected.\n");
     }
-
-    fclose(file);
+    
+    // Clean up
+    free_ast(ast);
+    
     return 0;
 }
+
+
+
+

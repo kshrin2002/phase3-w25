@@ -4,7 +4,6 @@
 #include "../../include/parser.h"
 #include "../../include/lexer.h"
 #include "../../include/tokens.h"
-#include "../../src/lexer/lexer.c"
 #include <string.h> // for strcmp
 
 // TODO 1: Add more parsing function declarations for:
